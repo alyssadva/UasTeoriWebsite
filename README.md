@@ -8,3 +8,13 @@
 - Upload Ke web masing-masing
 - file yg di upload link aplikasi
 - sertakan juga link github untuk source code aplikasi
+
+
+# Link Website : https://lyssaccshop.000webhostapp.com/admin%20aku/login.php 
+Username : alyssadiva
+Password : apaaja
+
+# Database MongoDB
+
+
+# Bahasa Pemrograman PHP

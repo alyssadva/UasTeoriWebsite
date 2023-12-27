@@ -1,7 +1,17 @@
 <?php
 session_start();
-$koneksi = new mysqli("localhost","root","","lysaccshop");
-  ?>
+// Koneksi ke MongoDB
+$manager = new MongoDB\Driver\Manager("mongodb+srv://alyssadiva:<password>@lysaccshop.a8l48kp.mongodb.net/");
+$dbName = "lysaccshop"; // Nama database
+
+if (!isset($_SESSION['admin'])) 
+{
+    echo "<script>alert('Anda harus login');</script>";
+    echo "<script>location='login.php';</script>";
+    exit;
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,21 +79,33 @@ $koneksi = new mysqli("localhost","root","","lysaccshop");
 				
 				</form>
 				<?php
-						if (isset($_POST['login'])) {
-							$ambil=$koneksi->query("SELECT * FROM admin WHERE username='$_POST[username]' AND password = '$_POST[pass]'");
-							$yangcocok=$ambil->num_rows;
-							if ($yangcocok==1) {
-								$_SESSION['admin']=$ambil->fetch_assoc();
-								echo "<div class='alert alert-info'>Login Sukses</div>";
-								echo "<meta http-equiv='refresh' content='1;url=index.php'>";
-							}
-							else{
-								echo "<div class='alert alert-danger'>Login Gagal</div>";
-								echo "<meta http-equiv='refresh' content='1;url=login.php'>";
+						<?php
+    if (isset($_POST['login'])) 
+    {
+        $username = $_POST['username'];
+        $password = $_POST['pass'];
 
-							}
-						}
-						  ?>
+        $filter = [
+            'username' => $username,
+            'password' => $password // Harap diperhatikan: Ini adalah demo sederhana, gunakan enkripsi yang aman untuk password dalam produksi.
+        ];
+        
+        $query = new MongoDB\Driver\Query($filter);
+        $rows = $manager->executeQuery("$dbName.admin", $query); // Asumsi koleksi admin ada di database yang sama dengan nama 'admin'
+
+        if (count($rows) == 1) 
+        {
+            $_SESSION['admin'] = $rows->toArray()[0];
+            echo "<div class='alert alert-info'>Login Sukses</div>";
+            echo "<meta http-equiv='refresh' content='1;url=index.php'>";
+        } 
+        else 
+        {
+            echo "<div class='alert alert-danger'>Login Gagal</div>";
+            echo "<meta http-equiv='refresh' content='1;url=login.php'>";
+        }
+    }
+    ?>
 			</div>
 		</div>
 	</div>

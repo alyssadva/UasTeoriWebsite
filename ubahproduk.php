@@ -1,8 +1,8 @@
 <h2>Ubah Produk</h2>
 <?php
-
-$ambil=$koneksi->query("SELECT * FROM produk WHERE id_produk='$_GET[id]'");
-$pecah=$ambil->fetch_assoc();
+// Menghubungkan ke database MongoDB
+$manager = new MongoDB\Driver\Manager("mongodb+srv://alyssadiva:<password>@lysaccshop.a8l48kp.mongodb.net/");
+$dbName = "lysaccshop";  
 
   ?>
 
@@ -29,22 +29,48 @@ $pecah=$ambil->fetch_assoc();
 	<button class="btn btn-primary" name="ubah">Ubah</button>
 </form>
 
-<?php 
-if (isset($_POST['ubah'])) 
-{
-	$namafoto = $_FILES['foto']['name'];
-	$lokasifoto = $_FILES['foto']['tmp_name'];
-	if (!empty($lokasifoto)) 
-	{
-	move_uploaded_file($lokasifoto, "../foto_produk/$namafoto");
+<?php
+if (isset($_POST['ubah'])) {
+    $bulk = new MongoDB\Driver\BulkWrite;
+    
+    $filter = ['_id' => new MongoDB\BSON\ObjectID($_GET['id'])];
 
-	$koneksi->query("UPDATE produk SET nama_produk='$_POST[nama]',harga_produk='$_POST[harga]',foto_produk='$namafoto',deskripsi_produk='$_POST[deskripsi]' WHERE id_produk='$_GET[id]'");
-	}
-	else
-	{
-	$koneksi->query("UPDATE produk SET nama_produk='$_POST[nama]',harga_produk='$_POST[harga]',deskripsi_produk='$_POST[deskripsi]' WHERE id_produk='$_GET[id]'");
-	}
-	echo "<script>alert('Data Produk Telah Diubah');</script>";
-	echo "<script>location='index.php?halaman=produk';</script>";
+    $namaFoto = $_FILES['foto']['name'];
+    $lokasiFoto = $_FILES['foto']['tmp_name'];
+
+    if (!empty($lokasiFoto)) {
+        move_uploaded_file($lokasiFoto, "../foto_produk/" . $namaFoto);
+        $data = [
+            '$set' => [
+                'nama_produk' => $_POST['nama'],
+                'harga_produk' => $_POST['harga'],
+                'foto_produk' => $namaFoto,
+                'deskripsi_produk' => $_POST['deskripsi']
+            ]
+        ];
+    } else {
+        $data = [
+            '$set' => [
+                'nama_produk' => $_POST['nama'],
+                'harga_produk' => $_POST['harga'],
+                'deskripsi_produk' => $_POST['deskripsi']
+            ]
+        ];
+    }
+
+    $bulk->update($filter, $data);
+
+    $manager->executeBulkWrite("$dbName.produk", $bulk);
+    
+    echo "<script>alert('Data Produk Telah Diubah');</script>";
+    echo "<script>location='index.php?halaman=produk';</script>";
 }
- ?>
+
+$filter = ['_id' => new MongoDB\BSON\ObjectID($_GET['id'])];
+$query = new MongoDB\Driver\Query($filter);
+$rows = $manager->executeQuery("$dbName.produk", $query);
+
+foreach ($rows as $pecah) {
+    // Sekarang, Anda dapat mengakses properti dokumen seperti $pecah->nama_produk, $pecah->harga_produk, dll.
+}
+?>

@@ -1,17 +1,15 @@
 ﻿<?php
 session_start();
-//koneksi ke database
-$koneksi = new mysqli("localhost","root","","lysaccshop");
+// Inisialisasi koneksi ke MongoDB
+$manager = new MongoDB\Driver\Manager("mongodb+srv://alyssadiva:sandygeo26@lysaccshop.a8l48kp.mongodb.net/");
 
 if (!isset($_SESSION['admin'])) 
 {
-    echo "<script>alert('anda harus login');</script>";
+    echo "<script>alert('Anda harus login');</script>";
     echo "<script>location='login.php';</script>";
 }
 
-
-
-  ?>
+?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -62,51 +60,31 @@ if (!isset($_SESSION['admin']))
         <!-- /. NAV SIDE  -->
         <div id="page-wrapper" >
             <div id="page-inner">
-                <?php
-                if (isset($_GET['halaman'])) 
-                {
-                    if ($_GET['halaman']=="produk") 
-                    {
-                        include 'produk.php';
-                    }
-                    elseif ($_GET['halaman']=="pembelian")
-                    {
-                        include 'pembelian.php';
-                    }
-                    elseif ($_GET['halaman']=="pelanggan")
-                    {
-                        include 'pelanggan.php';
-                    }
-                    elseif ($_GET['halaman']=="detail") 
-                    {
-                        include 'detail.php';
-                    }
-                    elseif ($_GET['halaman']=="tambahproduk") 
-                    {
-                        include 'tambahproduk.php';
-                    }
-                    elseif ($_GET['halaman']=="hapusproduk") 
-                    {
-                        include 'hapusproduk.php';
-                    }
-                    elseif ($_GET['halaman']=="ubahproduk") 
-                    {
-                        include 'ubahproduk.php';
-                    }
-                     elseif ($_GET['halaman']=="logout") 
-                    {
-                        include 'logout.php';
-                    }
-                    elseif ($_GET['halaman']=="hapuspelanggan") 
-                    {
-                        include 'hapuspelanggan.php';
-                    }
-                }
-                else
-                {
-                    include 'home.php';
-                }
-                ?>    
+               <?php
+if (isset($_GET['halaman'])) 
+{
+    switch ($_GET['halaman']) 
+    {
+        case "produk":
+            include 'produk_mongodb.php'; // Asumsi file ini telah diperbarui untuk MongoDB
+            break;
+        case "pembelian":
+            include 'pembelian_mongodb.php'; // Asumsi file ini telah diperbarui untuk MongoDB
+            break;
+        case "pelanggan":
+            include 'pelanggan_mongodb.php'; // Asumsi file ini telah diperbarui untuk MongoDB
+            break;
+        // ... tambahkan case lainnya seperti yang Anda butuhkan ...
+        default:
+            include 'home.php'; // Anda mungkin juga ingin mengubah ini agar bekerja dengan MongoDB jika diperlukan.
+            break;
+    }
+}
+else
+{
+    include 'home.php';
+}
+?>    
                 </div>
              <!-- /. PAGE INNER  -->
                 
